@@ -228,7 +228,7 @@ if __name__ == "__main__":
     user = args.user
     pwd = args.pwd
 
-    # VolumePack(user, pwd, args.debug)
+    VolumePack(user, pwd, args.debug)
 
     if args.add_cron_job == 'yes':
         Crontab(user, pwd)
