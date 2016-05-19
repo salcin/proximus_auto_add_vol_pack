@@ -187,11 +187,10 @@ class VolumePack:
 class Crontab:
     """ Add a cron job """
 
-    cmd = '`/usr/bin/python ' + path.realpath('') + '/' + path.basename(__file__) + '`'
-
-    def __init__(self):
+    def __init__(self, user, pwd):
 
         self.cron = CronTab(user=True)
+        self.cmd = '`/usr/bin/python ' + path.realpath('') + '/' + path.basename(__file__) + ' ' + user + ' \"' + pwd + '\"`'
 
         if self.is_no_exist() is not True:
             self.add_job()
@@ -199,7 +198,7 @@ class Crontab:
     def add_job(self):
 
         self.job = self.cron.new(command=self.cmd, comment='Proximus add a volume pack every 4 days')
-        self.job.day.every(4)
+        self.job.setall(0, 20, '*/4', '*', '*')
 
         self.cron.write_to_user(user=True)
         print 'Add the cron job at your crontab done'
@@ -229,7 +228,7 @@ if __name__ == "__main__":
     user = args.user
     pwd = args.pwd
 
-    VolumePack(user, pwd, args.debug)
+    # VolumePack(user, pwd, args.debug)
 
     if args.add_cron_job == 'yes':
         Crontab(user, pwd)
