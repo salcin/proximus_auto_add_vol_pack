@@ -55,19 +55,23 @@ class VolumePack:
 
     path_browser = "/usr/lib/chromium/chromedriver"
 
-    def __init__(self, user, pwd, debug):
-
+    def __init__(self, user, pwd, repeat, debug):
         self.debug = debug
-        self.user = user
-        self.pwd = pwd
 
         self.set_debug()        # if self.debug = yes view procedure step by step in the browser
         self.browser = webdriver.Chrome(self.path_browser)
-        self.login()
-        self.select()
-        self.confirmed()
+        self.login(user, pwd)
+        self.go_to_internet()
 
-    def login(self):
+        i = 1
+        while i <= repeat:
+            i += 1
+            self.go_to_service()
+            self.confirmed()
+
+        self.logout()
+
+    def login(self, user, pwd):
 
         self.browser.get('https://www.belgacom.be/login/fr/?ru=https%3A%2F%2Fadmit.belgacom.be%2F&pv=fls')
 
@@ -75,8 +79,8 @@ class VolumePack:
             self.browser.switch_to_frame(self.browser.find_element_by_xpath('//iframe[@name="loginIframe"]'))
             self.browser.switch_to_frame(self.browser.find_element_by_xpath('//iframe[@name="frame"]'))
 
-            self.browser.find_element_by_xpath('//input[@id="loginForm:userName"]').send_keys(self.user)
-            self.browser.find_element_by_xpath('//input[@id="loginForm:password"]').send_keys(self.pwd)
+            self.browser.find_element_by_xpath('//input[@id="loginForm:userName"]').send_keys(user)
+            self.browser.find_element_by_xpath('//input[@id="loginForm:password"]').send_keys(pwd)
 
             self.browser.find_element_by_xpath('//input[@id="loginForm:continue"]').click()
 
@@ -84,21 +88,29 @@ class VolumePack:
             self.error_take_screenshot('to login procedure')
             exit(2)
 
-    def select(self):
+    def go_to_internet(self):
 
         self.wait_before_continue('ns_7_7OGJPDU518D6A0ACILTFQT2004_myBillAndProducts')
 
         try:
-
             self.browser.find_element_by_xpath('//i[contains(@class, "icon-Internetlaptop")]').click()
-            self.wait_before_continue("ns_7_7OGJPDU51OKG60I9TQGKIB1004_myInternetServicesContent")
+            self.wait_before_continue("ns_7_7OGJPDU51OKG60I9TQGKIB1004_myFixedInternetServices")
 
+        except:
+            self.error_take_screenshot('to go on the internet page')
+            exit(3)
+
+    def go_to_service(self):
+
+        self.wait_before_continue("ns_7_7OGJPDU51OKG60I9TQGKIB1004_myFixedInternetServices")
+
+        try:
             self.browser.find_element_by_xpath('//a[@href="#pb-tabs-notActivated"]').click()
             services = self.browser.find_elements_by_xpath('//a[contains(@class, "pb-ico-plus")]')
 
         except:
-            self.error_take_screenshot('to go on the service page')
-            exit(3)
+            self.error_take_screenshot('to select service')
+            exit(4)
 
         # choice among the services availables
         try:
@@ -110,45 +122,51 @@ class VolumePack:
 
         except:
             self.error_take_screenshot('to select the service pack')
-            exit(3)
+            exit(4)
 
     def confirmed(self):
 
+        self.wait_before_continue("ns_7_7OGJPDU51OKG60I9TQGKIB1004_order")
+
         # auto find url
         bt_link_order = "/eservices/wps/myportal/myProducts/myOrder?selectedOption=hbs_volume_pack_20_free"
-        print self.browser.find_element_by_xpath('//a[contains(@href,"' + bt_link_order + '")]').text
 
         try:
             self.browser.find_element_by_xpath('//a[contains(@href,"' + bt_link_order + '")]').click()
             self.wait_before_continue("ns_7_7OGJPDU51OKOF0I9LM7HMQ30K5_")
 
             self.browser.find_element_by_xpath('//a[contains(@class,"pcp-order-next")]').click()
-            self.wait_before_continue("ns_7_7OGJPDU51OKOF0I9LM7HMQ30K5_")
 
         except:
             self.error_take_screenshot('the order of the volume pack')
-            exit(4)
+            exit(5)
 
-        price = self.browser.find_element_by_xpath('//tr[contains(@class, "pb-table-total")]').find_element_by_class_name('pb-textAlignCenter').text
+        try:
+            self.wait_before_continue("ns_7_7OGJPDU51OKOF0I9LM7HMQ30K5_")
+            price = self.browser.find_element_by_xpath('//tr[contains(@class, "pb-table-total")]').find_element_by_class_name('pb-textAlignCenter').text
+        except:
+            self.error_take_screenshot('the getting of amount of the invoice')
+            exit(5)
 
         if price.find(' 0,00') == -1:
             self.error_take_screenshot("the checking of invoice")
-            exit(4)
+            exit(5)
 
         try:
             self.browser.find_element_by_xpath('//input[@id="generalTerms"]').click()
-
-        except:
-            self.error_take_screenshot("the accepted of general terms")
-            exit(4)
-        try:
             self.browser.find_element_by_xpath('//a[@eventdetail="confirmOrderLink"]').click()
 
         except:
             self.error_take_screenshot('the finalization of the order')
-            exit(4)
+            exit(5)
 
         self.browser.find_element_by_xpath('//a[@href="/eservices/wps/myportal/myProducts"]').click()
+
+    def logout(self):
+        self.browser.find_element_by_xpath('//span[@class="jscm-acc-tit"]').click()
+        sleep(2)
+        self.browser.find_element_by_xpath('//a[contains(@class,"cm-txt-c3")]').click()
+        sleep(5)
 
     def wait_before_continue(self, id):
 
@@ -157,12 +175,12 @@ class VolumePack:
         )
 
         # wait some seconds before continue
-        sleep(randint(2, 10))
+        sleep(randint(5, 15))
 
     def error_take_screenshot(self, txt):
 
             path_screenshot = '/tmp/proximus_add_vol_pack.png'
-            print 'Error during ' + txt + ', please show the screenshot : ' + path_screenshot
+            print 'Error during \" ' + txt + ' \", please show the screenshot : ' + path_screenshot
             self.browser.get_screenshot_as_file(path_screenshot)
 
     def set_debug(self):
@@ -218,6 +236,7 @@ if __name__ == "__main__":
     parser = ArgumentParser(description='Add a free extra data volume pack to Proximus FAI', usage='python ' + argv[0] + ' \"toto@proximus.be\" \"monSuperPwd\" --debug=yes --add_cron_job=yes')
     parser.add_argument('user', type=str, help='User proximus email')
     parser.add_argument('pwd', type=str, help='Password proximus')
+    parser.add_argument('--repeat', type=int, default='1', help='How many volume pack to add ? (default: 1)')
     parser.add_argument('--add_cron_job', default='no', help='Add a job at crontab, use \'yes\' or \'no\' (default: no)')
     parser.add_argument('--debug', default='no', help='Use Xvfb to view step by step in your browser, use \'yes\' or \'no\' (default: no)')
 
@@ -228,7 +247,7 @@ if __name__ == "__main__":
     user = args.user
     pwd = args.pwd
 
-    VolumePack(user, pwd, args.debug)
+    VolumePack(user, pwd, args.repeat, args.debug)
 
     if args.add_cron_job == 'yes':
         Crontab(user, pwd)
