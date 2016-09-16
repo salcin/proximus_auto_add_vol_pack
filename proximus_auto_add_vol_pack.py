@@ -30,7 +30,7 @@ Changelog :
     - Add a cron job at the crontab
 
  Please before running, check if the depends below are installed :
- sudo aptitude install chromedriver xvfb python-selenium python-crontab
+ sudo aptitude install chromedriver xvfb python-selenium python-crontab python-xvfbwrapper
 """
 
 
@@ -73,14 +73,17 @@ class VolumePack:
 
     def login(self, user, pwd):
 
-        self.browser.get('https://www.belgacom.be/login/fr/?ru=https%3A%2F%2Fadmit.belgacom.be%2F&pv=fls')
+        self.browser.get('https://www.belgacom.be/login/fr/')
 
         try:
             self.browser.switch_to_frame(self.browser.find_element_by_xpath('//iframe[@name="loginIframe"]'))
             self.browser.switch_to_frame(self.browser.find_element_by_xpath('//iframe[@name="frame"]'))
 
             self.browser.find_element_by_xpath('//input[@id="loginForm:userName"]').send_keys(user)
-            self.browser.find_element_by_xpath('//input[@id="loginForm:password"]').send_keys(pwd)
+
+            input_pwd = self.browser.find_element_by_xpath('//input[@id="loginForm:password"]')
+            input_pwd.send_keys(u'\ue003')      # backspace
+            input_pwd.send_keys(pwd)
 
             self.browser.find_element_by_xpath('//input[@id="loginForm:continue"]').click()
 
