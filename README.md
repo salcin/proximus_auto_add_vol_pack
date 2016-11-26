@@ -29,8 +29,11 @@ Improvements - Changelog
 * Create of object classes for more flexible usage
 * Use chromedriver instead of firefox, see the variable path_browser
 * Random pause of some seconds between the queries to avoids to be kicked
+* Take a printscreen if error during the process 
 * Check the amount of the invoice is equal to ' 0,00'
 * Add a cron job at the crontab
+* Skip the ad if there is displayed
+* Don't loading the images to optimize the speed of requests
 
 Parameters
 ===
