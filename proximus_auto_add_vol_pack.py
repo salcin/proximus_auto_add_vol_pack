@@ -57,9 +57,14 @@ class VolumePack:
 
     def __init__(self, user, pwd, repeat, debug):
         self.debug = debug
-
         self.set_debug()        # if self.debug = yes view procedure step by step in the browser
-        self.browser = webdriver.Chrome(self.path_browser)
+
+        # don't loading the images to optimize the speed of requests
+        chromeOptions = webdriver.ChromeOptions()
+        prefs = {"profile.managed_default_content_settings.images":2}
+        chromeOptions.add_experimental_option("prefs",prefs)
+
+        self.browser = webdriver.Chrome(chrome_options=chromeOptions)
         self.login(user, pwd)
 
         self.go_to_internet()
@@ -228,7 +233,7 @@ class Crontab:
     def add_job(self):
 
         self.job = self.cron.new(command=self.cmd, comment='Proximus add a volume pack every 4 days')
-        self.job.setall(0, 20, '*/4', '*', '*')
+        self.job.setall(0, 20, '*/4', '*', '*')         # every four day at 20h00
 
         self.cron.write_to_user(user=True)
         print 'Add the cron job at your crontab done'
