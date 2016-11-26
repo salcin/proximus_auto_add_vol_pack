@@ -95,8 +95,11 @@ class VolumePack:
     def go_to_internet(self):
 
         # if a ad is displayed, dismiss it
-        self.wait_before_continue('ns_7_7OGJPDU51OIB50IVTR847P20G2_')
-        self.browser.find_element_by_xpath('//a[@href="javascript: void(0)"]').click()
+        try:
+            WebDriverWait(self.browser, 5).until(EC.presence_of_element_located((By.ID, "ns_7_7OGJPDU51OIB50IVTR847P20G2_")))       # wait 5 sec to find if a ad is displayed
+            self.browser.find_element_by_xpath('//a[@href="javascript: void(0)"]').click()
+        except Exception:
+            pass
 
         # wait the loading page
         self.wait_before_continue('ns_7_7OGJPDU518D6A0ACILTFQT2004_myBillAndProducts')
