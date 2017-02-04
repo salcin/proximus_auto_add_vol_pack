@@ -91,7 +91,7 @@ class VolumePack:
             input_pwd.send_keys(u'\ue003')      # backspace
             input_pwd.send_keys(pwd)
 
-            self.browser.find_element_by_xpath('//input[@id="loginForm:continue"]').click()
+            self.browser.find_element_by_xpath('//button[@id="loginForm:continue"]').click()
 
         except:
             self.error_take_screenshot('to login procedure')
