@@ -132,7 +132,7 @@ class VolumePack:
         # choice among the services availables
         try:
             for service in services:
-                extraVol = "Extra Volume 20 GB"
+                extraVol = "Extra Volume 150 GB free"
                 if extraVol in service.get_attribute("innerHTML"):
                     service.click()
                     break
@@ -146,7 +146,7 @@ class VolumePack:
         self.wait_before_continue("ns_7_7OGJPDU51OKG60I9TQGKIB1004_order")
 
         # auto find url
-        bt_link_order = "/eservices/wps/myportal/myProducts/myOrder?selectedOption=hbs_volume_pack_20_free"
+        bt_link_order = "/eservices/wps/myportal/myProducts/myOrder?selectedOption=hbs_volume_pack_150_free"
 
         try:
             self.browser.find_element_by_xpath('//a[contains(@href,"' + bt_link_order + '")]').click()
